@@ -6,7 +6,7 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/05 10:15:59 by vflander          #+#    #+#             */
-/*   Updated: 2020/08/03 16:27:49 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/03 19:34:06 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -243,7 +243,6 @@ int			printf_get_number_len(long int number, t_format_data *format_data)
 			number /= 10;
 			len += 1;
 		}
-	format_data->misc_base_len = len;//just len of digits
 	//counting number of zeros (precision) before counting sign/space
 	if (true == format_data->mod_precision && \
 		format_data->mod_precision_value > len)
@@ -267,17 +266,21 @@ int			printf_get_number_len(long int number, t_format_data *format_data)
 }
 
 /*
-**	Prints given long int to the stdout
+**	Prints given long int to the stdout.
+**	Returns number of bytes written.
 */
 
-void		printf_putnbr_long(long int n)
+int		printf_putnbr_long(long int n)
 {
 	char		c;
+	int			bytes_written;
 
+	bytes_written = 0;
 	if (n >= 10)
-		printf_putnbr_long(n / 10);
+		 bytes_written += printf_putnbr_long(n / 10);
 	c = '0' + n % 10;
-	write(1, &c, 1);
+	bytes_written += write(1, &c, 1);
+	return (bytes_written);
 }
 
 /*
@@ -291,6 +294,8 @@ int			printf_print_type_int_number(long int number,\
 			t_format_data *format_data)
 {
 	int		bytes_written;
+	//FIXME:
+	int		debug;
 
 	bytes_written = 0;
 	//print ' ' or '+' if needed
@@ -314,8 +319,9 @@ int			printf_print_type_int_number(long int number,\
 		format_data->misc_num_of_zeros -= 1;
 	}
 	//printing actual number;
-	printf_putnbr_long(number);
-	bytes_written += format_data->misc_base_len;
+	debug = printf_putnbr_long(number);
+	printf("((%d))", debug);
+	bytes_written += debug;
 	return (bytes_written);
 }
 
@@ -335,6 +341,9 @@ int				printf_print_type_int(va_list *ap, t_format_data *format_data)
 		number = va_arg(*ap, unsigned int);
 	else
 		number = va_arg(*ap, int);
+	if ((0 == number) && (true == format_data->mod_precision) && \
+		(0 == format_data->mod_precision_value))
+		return (0);//print nothing for this combination
 	len = printf_get_number_len(number, format_data);
 	//TODO: debug:
 	//printf("((%d))", len);
