@@ -6,7 +6,7 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/05 10:15:59 by vflander          #+#    #+#             */
-/*   Updated: 2020/08/03 08:41:04 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/03 15:26:51 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,6 +139,10 @@ int			printf_parse_modifiers_precision(va_list *ap,\
 	}
 	if (format_data->mod_precision_value >= 0)
 		format_data->mod_precision = true;//negative precision is omitted
+	//When precision is present, '0' flag is omitted
+	//TODO: Do I need to specify types here as well?
+	if (format_data->mod_precision)
+		format_data->flag_zero = 0;
 	return (0);
 }
 
