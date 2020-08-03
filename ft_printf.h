@@ -6,7 +6,7 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/05 10:18:02 by vflander          #+#    #+#             */
-/*   Updated: 2020/08/01 07:48:22 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/03 08:06:44 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@
 # include <stdbool.h>
 # include <limits.h>
 //for testing only
-# include "libft.h"
-# include <stdio.h>
+# include "libft/libft.h"
+//# include <stdio.h>
 
 typedef struct	s_format
 {
@@ -34,6 +34,8 @@ typedef struct	s_format
 	int			mod_precision_value;
 	char		mod_type;
 	bool		format_is_valid;
+	int			misc_base_len;
+	int			misc_num_of_zeros;
 }				t_format_data;
 
 

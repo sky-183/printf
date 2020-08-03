@@ -6,11 +6,13 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/05 10:15:59 by vflander          #+#    #+#             */
-/*   Updated: 2020/08/02 15:10:31 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/03 08:41:04 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
+//FIXME:
+#include <stdio.h>
 
 /*
 **	Takes structure (t_format_data) and fills everything with zeros.
@@ -29,6 +31,8 @@ void			printf_init_struct(t_format_data *this_struct_ptr)
 	this_struct_ptr->mod_width_value = 0;
 	this_struct_ptr->mod_precision_value = 0;
 	this_struct_ptr->mod_type = '\0';
+	this_struct_ptr->misc_base_len = 0;
+	this_struct_ptr->misc_num_of_zeros = 0;
 }
 
 /*
@@ -36,7 +40,7 @@ void			printf_init_struct(t_format_data *this_struct_ptr)
 **	Prints the entire structure of 't_format_data' type.
 */
 
-
+/*
 void					print_struct(t_format_data *this_struct_ptr)
 {
 	printf("\nflag minus: %d", this_struct_ptr->flag_minus);
@@ -51,7 +55,7 @@ void					print_struct(t_format_data *this_struct_ptr)
 	printf("\nmod type: %c", this_struct_ptr->mod_type);
 	printf("\nvalid: %d", this_struct_ptr->format_is_valid);
 }
-
+*/
 /*
 **	Iterates on the format string (until first non-flag character) and saves
 **	all found flags to given data structure (t_format_data).
@@ -176,7 +180,10 @@ int			printf_print_type_char(va_list *ap, t_format_data *format_data)
 	if (true == format_data->mod_width)
 		while (i < format_data->mod_width_value)
 		{
-			bytes_written += write(1, " ", 1);
+			if (format_data->flag_zero)
+				bytes_written += write(1, "0", 1);
+			else
+				bytes_written += write(1, " ", 1);
 			i += 1;
 		}
 	if (false == format_data->flag_minus)
@@ -218,7 +225,7 @@ int			printf_print_type_string(va_list *ap, t_format_data *format_data)
 
 /*
 **	Returns length of number, including '-' for negatives and ' ' or '+' for
-**	positives (if those flags are specified).
+**	positives (if those flags are specified) and additional zeros for precision.
 */
 
 int			printf_get_number_len(long int number, t_format_data *format_data)
@@ -231,15 +238,19 @@ int			printf_get_number_len(long int number, t_format_data *format_data)
 			number /= 10;
 			len += 1;
 		}
+	format_data->misc_base_len = len;//just len of digits
+	//counting number of zeros before counting sign/space
+	if (true == format_data->mod_precision && \
+		format_data->mod_precision_value > len)
+	{
+		format_data->misc_num_of_zeros = format_data->mod_precision_value - len;
+		len += format_data->misc_num_of_zeros;
+	}
 	if (number < 0)
 		len += 1;
 	else if (format_data->mod_type != 'u')
 		if (format_data->flag_plus || format_data->flag_space)
 			len += 1;
-	//if precision should truncate 'd', 'i', 'u', 'x', 'X'
-	//TODO:FIXME: and change above functions as well
-	//if (format_data->mod_precision && (format_data->mod_precision_value < len))
-	//	len = format_data->mod_precision_value;
 	return (len);
 }
 
@@ -251,27 +262,16 @@ void		printf_putnbr_long(long int n)
 {
 	char		c;
 
-	if (n < 0)
-	{
-		write(1, "-", 1);
-		n = -n;
-	}
+
 	if (n >= 10)
 		printf_putnbr_long(n / 10);
 	c = '0' + n % 10;
 	write(1, &c, 1);
-	/*
-	if (*len > 0)
-	{
-		write(1, &c, 1);
-		*len -= 1;
-	}
-	*/
 }
 
 /*
-**	Prints int (signed or not) number with ' ' or '+' before it if needed
-**	(but not padding).
+**	Prints int (signed or not) number with ' ' or '+' before, if needed.
+**	Also prints leading zeros for 'precision', but not spaces for 'width'.
 **	Returns number of bytes written.
 */
 
@@ -281,6 +281,7 @@ int			printf_print_type_int_number(long int number,\
 	int		bytes_written;
 
 	bytes_written = 0;
+	//print ' ' or '+' if needed
 	if (number >= 0 && (format_data->mod_type != 'u'))
 	{
 		if (format_data->flag_plus)
@@ -288,9 +289,21 @@ int			printf_print_type_int_number(long int number,\
 		else if (format_data->flag_space)
 			bytes_written += write(1, " ", 1);
 	}
-
-	//bytes_written += len;
+	//print '-'
+	if (number < 0)
+	{
+		bytes_written += write(1, "-", 1);
+		number = -number;
+	}
+	//print leading '0' for precision
+	while (format_data->misc_num_of_zeros > 0)
+	{
+		bytes_written += write(1, "0", 1);
+		format_data->misc_num_of_zeros -= 1;
+	}
+	//printing actual number;
 	printf_putnbr_long(number);
+	bytes_written += format_data->misc_base_len;
 	return (bytes_written);
 }
 
@@ -321,7 +334,7 @@ int				printf_print_type_int(va_list *ap, t_format_data *format_data)
 	*/
 	//print number
 	if (true == format_data->flag_minus)
-		bytes_written += printf_print_type_int_number(number, format_data);
+		printf_print_type_int_number(number, format_data);
 	//print fillers
 	if (true == format_data->mod_width)
 		while (len < format_data->mod_width_value)
@@ -334,7 +347,7 @@ int				printf_print_type_int(va_list *ap, t_format_data *format_data)
 		}
 	//print number
 	if (false == format_data->flag_minus)
-		bytes_written += printf_print_type_int_number(number, format_data);
+		printf_print_type_int_number(number, format_data);
 	return (bytes_written);
 }
 
@@ -558,12 +571,3 @@ int						ft_printf(const char *format_string, ...)
 	return (total_len_written);
 }
 
-int				main(void)
-{
-	char c;
-	c = 'x';
-	//printf("\nreturn: %d\n", ft_printf("%d", 1, 2, 3));
-	printf("\nreturn: %d\n", ft_printf("%-10c", c));
-	printf("\nreturn: %d\n", printf("%-10c", c));
-	return (0);
-}

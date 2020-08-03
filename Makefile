@@ -6,7 +6,7 @@
 #    By: vflander <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/06/02 17:32:34 by vflander          #+#    #+#              #
-#    Updated: 2020/08/02 16:11:51 by vflander         ###   ########.fr        #
+#    Updated: 2020/08/03 08:32:21 by vflander         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -54,12 +54,8 @@ re: fclean all
 bonus:
 
 # for testing with main.c
-test:
+test: $(NAME)
 	@$(CC) $(CFLAGS) main.c $(NAME) && ./a.out
 	@rm -f ./a.out
-
-# little playground for testing printf with different mods
-xtest:
-	@$(CC) -g test.c && ./a.out
 
 .PHONY: all clean fclean re bonus
