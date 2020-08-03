@@ -6,7 +6,7 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/05 10:15:59 by vflander          #+#    #+#             */
-/*   Updated: 2020/08/03 19:34:06 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/03 19:37:18 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -319,8 +319,9 @@ int			printf_print_type_int_number(long int number,\
 		format_data->misc_num_of_zeros -= 1;
 	}
 	//printing actual number;
+	//FIXME: debug
 	debug = printf_putnbr_long(number);
-	printf("((%d))", debug);
+	//printf("((%d))", debug);
 	bytes_written += debug;
 	return (bytes_written);
 }

@@ -6,7 +6,7 @@
 #    By: vflander <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/06/02 17:32:34 by vflander          #+#    #+#              #
-#    Updated: 2020/08/03 08:32:21 by vflander         ###   ########.fr        #
+#    Updated: 2020/08/03 19:37:55 by vflander         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -55,7 +55,7 @@ bonus:
 
 # for testing with main.c
 test: $(NAME)
-	@$(CC) $(CFLAGS) main.c $(NAME) && ./a.out
+	@$(CC) $(CFLAGS) main.c $(NAME) && ./a.out | cat -e
 	@rm -f ./a.out
 
 .PHONY: all clean fclean re bonus
