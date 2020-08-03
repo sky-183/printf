@@ -6,7 +6,7 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/05 10:15:59 by vflander          #+#    #+#             */
-/*   Updated: 2020/08/03 15:26:51 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/03 16:27:49 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -229,7 +229,8 @@ int			printf_print_type_string(va_list *ap, t_format_data *format_data)
 
 /*
 **	Returns length of number, including '-' for negatives and ' ' or '+' for
-**	positives (if those flags are specified) and additional zeros for precision.
+**	positives (if those flags are specified) and additional zeros for precision
+**	or '0' flag.
 */
 
 int			printf_get_number_len(long int number, t_format_data *format_data)
@@ -243,7 +244,7 @@ int			printf_get_number_len(long int number, t_format_data *format_data)
 			len += 1;
 		}
 	format_data->misc_base_len = len;//just len of digits
-	//counting number of zeros before counting sign/space
+	//counting number of zeros (precision) before counting sign/space
 	if (true == format_data->mod_precision && \
 		format_data->mod_precision_value > len)
 	{
@@ -255,6 +256,13 @@ int			printf_get_number_len(long int number, t_format_data *format_data)
 	else if (format_data->mod_type != 'u')
 		if (format_data->flag_plus || format_data->flag_space)
 			len += 1;
+	//counting number of zeros ('0' flag)
+	if (true == format_data->mod_width)
+		if (true == format_data->flag_zero && !(format_data->flag_minus))
+		{
+			format_data->misc_num_of_zeros = format_data->mod_width_value - len;
+			len += format_data->misc_num_of_zeros;
+		}
 	return (len);
 }
 
@@ -266,7 +274,6 @@ void		printf_putnbr_long(long int n)
 {
 	char		c;
 
-
 	if (n >= 10)
 		printf_putnbr_long(n / 10);
 	c = '0' + n % 10;
@@ -275,7 +282,8 @@ void		printf_putnbr_long(long int n)
 
 /*
 **	Prints int (signed or not) number with ' ' or '+' before, if needed.
-**	Also prints leading zeros for 'precision', but not spaces for 'width'.
+**	Also prints leading zeros for 'precision' and '0' flag,
+**	but not spaces for 'width'.
 **	Returns number of bytes written.
 */
 
@@ -343,10 +351,7 @@ int				printf_print_type_int(va_list *ap, t_format_data *format_data)
 	if (true == format_data->mod_width)
 		while (len < format_data->mod_width_value)
 		{
-			if (format_data->flag_zero && !(format_data->flag_minus))
-				bytes_written += write(1, "0", 1);
-			else
-				bytes_written += write(1, " ", 1);
+			bytes_written += write(1, " ", 1);
 			len += 1;
 		}
 	//print number
