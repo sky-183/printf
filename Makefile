@@ -6,7 +6,7 @@
 #    By: vflander <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/06/02 17:32:34 by vflander          #+#    #+#              #
-#    Updated: 2020/08/03 19:37:55 by vflander         ###   ########.fr        #
+#    Updated: 2020/08/04 14:12:21 by vflander         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,13 @@ CFLAGS = -Wall -Wextra -Werror -g
 # just to make easy switching to clang for testing
 CC = gcc
 
-SRC = ft_printf.c
+SRC = \
+	ft_printf.c \
+	printf_parse.c \
+	printf_print_type_char.c \
+	printf_print_type_string.c \
+	printf_print_type_int.c \
+	printf_print_type_hex.c
 
 OBJ = $(SRC:%.c=%.o)
 

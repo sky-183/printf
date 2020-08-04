@@ -6,7 +6,7 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/05 10:18:02 by vflander          #+#    #+#             */
-/*   Updated: 2020/08/04 13:37:33 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/04 14:11:50 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include <stdlib.h>
 # include <stdbool.h>
 # include <limits.h>
+# include "libft/libft.h"
 
 typedef struct	s_format
 {

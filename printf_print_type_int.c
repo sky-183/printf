@@ -6,7 +6,7 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/04 13:19:22 by vflander          #+#    #+#             */
-/*   Updated: 2020/08/04 13:38:06 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/04 14:13:05 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 **	or '0' flag.
 */
 
-static int		print_get_number_len_part2(long int number, t_format_data *f, \
+static int		printf_get_number_len_part2(long int number, t_format_data *f, \
 				int len)
 {
 	if (number < 0)
