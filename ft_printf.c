@@ -6,7 +6,7 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/05 10:15:59 by vflander          #+#    #+#             */
-/*   Updated: 2020/08/04 11:29:20 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/04 11:35:13 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,27 +35,6 @@ void			printf_init_struct(t_format_data *this_struct_ptr)
 	this_struct_ptr->misc_num_of_zeros = 0;
 }
 
-/*
-**	Debug function.
-**	Prints the entire structure of 't_format_data' type.
-*/
-
-/*
-void					print_struct(t_format_data *this_struct_ptr)
-{
-	printf("\nflag minus: %d", this_struct_ptr->flag_minus);
-	printf("\nflag plus: %d", this_struct_ptr->flag_plus);
-	printf("\nflag space: %d", this_struct_ptr->flag_space);
-	printf("\nflag hash: %d", this_struct_ptr->flag_hash);
-	printf("\nflag zero: %d", this_struct_ptr->flag_zero);
-	printf("\nmod width: %d", this_struct_ptr->mod_width);
-	printf("\nmod width value: %d", this_struct_ptr->mod_width_value);
-	printf("\nmod precision: %d", this_struct_ptr->mod_precision);
-	printf("\nmod precision value: %d", this_struct_ptr->mod_precision_value);
-	printf("\nmod type: %c", this_struct_ptr->mod_type);
-	printf("\nvalid: %d", this_struct_ptr->format_is_valid);
-}
-*/
 /*
 **	Iterates on the format string (until first non-flag character) and saves
 **	all found flags to given data structure (t_format_data).
