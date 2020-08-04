@@ -6,7 +6,7 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/05 10:15:59 by vflander          #+#    #+#             */
-/*   Updated: 2020/08/04 09:52:02 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/04 10:01:23 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -262,16 +262,16 @@ int				printf_get_number_len(long int number, t_format_data *f)
 		if (f->flag_plus || f->flag_space)
 			len += 1;
 	//counting number of zeros ('0' flag)
-	if (true == f->mod_width)
-		if (true == f->flag_zero && !(f->flag_minus))
-		{
-			f->misc_num_of_zeros = f->mod_width_value - len;
-			if (f->misc_num_of_zeros < 0)
-				f->misc_num_of_zeros = 0;
-			len += f->misc_num_of_zeros;
-		}
+	//FIXME: if (true == f->mod_width) will it work fine without this string?
+	if (true == f->flag_zero && !(f->flag_minus))
+	{
+		f->misc_num_of_zeros = f->mod_width_value - len;
+		if (f->misc_num_of_zeros < 0)
+			f->misc_num_of_zeros = 0;
+		len += f->misc_num_of_zeros;
+	}
 	//FIXME: debug
-	//printf("((get_len:%d))", len);
+	//printf("((zeros:%d))", f->misc_num_of_zeros);
 	return (len);
 }
 
@@ -361,7 +361,8 @@ int				printf_print_type_int(va_list *ap, t_format_data *f)
 	else
 		number = va_arg(*ap, int);
 	num_of_spaces = 0;
-	if (f->mod_width && ((tmp = f->mod_width_value - printf_get_number_len(number, f)) >= 0))
+	if (((tmp = f->mod_width_value - printf_get_number_len(number, f)) >= 0) &&\
+		f->mod_width)
 		num_of_spaces = tmp;
 	//TODO: debug:
 	//printf("((spaces:%d))", num_of_spaces);
