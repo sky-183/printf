@@ -6,7 +6,7 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/05 10:15:59 by vflander          #+#    #+#             */
-/*   Updated: 2020/08/04 12:36:22 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/04 13:11:21 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ void			printf_parse_flags(const char **format_string,\
 		else if (**format_string == '0')
 			f->flag_zero = true;
 		else
-			break;
+			break ;
 		(*format_string)++;
 	}
 }
@@ -212,26 +212,9 @@ int			printf_print_type_string(va_list *ap, t_format_data *f)
 **	or '0' flag.
 */
 
-int				printf_get_number_len(long int number, t_format_data *f)
+int				print_get_number_len_part2(long int number, t_format_data *f, \
+				int len)
 {
-	int			len;
-	long int	tmp;
-
-	len = 1;
-	if ((0 == number) && (true == f->mod_precision) && \
-		(0 == f->mod_precision_value))
-		len = 0;
-	tmp = number;
-	while (tmp / 10)
-		{
-			tmp /= 10;
-			len += 1;
-		}
-	if (true == f->mod_precision && f->mod_precision_value > len)
-	{
-		f->misc_num_of_zeros = f->mod_precision_value - len;
-		len += f->misc_num_of_zeros;
-	}
 	if (number < 0)
 		len += 1;
 	else if (f->mod_type != 'u')
@@ -247,6 +230,29 @@ int				printf_get_number_len(long int number, t_format_data *f)
 	return (len);
 }
 
+int				printf_get_number_len(long int number, t_format_data *f)
+{
+	int			len;
+	long int	tmp;
+
+	len = 1;
+	if ((0 == number) && (true == f->mod_precision) && \
+		(0 == f->mod_precision_value))
+		len = 0;
+	tmp = number;
+	while (tmp / 10)
+	{
+		tmp /= 10;
+		len += 1;
+	}
+	if (true == f->mod_precision && f->mod_precision_value > len)
+	{
+		f->misc_num_of_zeros = f->mod_precision_value - len;
+		len += f->misc_num_of_zeros;
+	}
+	return (printf_get_number_len_part2(number, f, len));
+}
+
 /*
 **	Prints given long int to the stdout.
 **	Returns number of bytes written.
@@ -259,7 +265,7 @@ int				printf_putnbr_long(long int n)
 
 	bytes_written = 0;
 	if (n >= 10)
-		 bytes_written += printf_putnbr_long(n / 10);
+		bytes_written += printf_putnbr_long(n / 10);
 	c = '0' + n % 10;
 	bytes_written += write(1, &c, 1);
 	return (bytes_written);
@@ -415,11 +421,8 @@ int				printf_print_type_hex_number(size_t number,\
 		capital = true;
 	else
 		capital = false;
-	while (f->misc_num_of_zeros > 0)
-	{
+	while ((f->misc_num_of_zeros)-- > 0)
 		bytes_written += write(1, "0", 1);
-		f->misc_num_of_zeros -= 1;
-	}
 	if ((0 == number) && (true == f->mod_precision) && \
 		(0 == f->mod_precision_value))
 		bytes_written += 0;
@@ -473,17 +476,17 @@ int			printf_print_processed_struct(va_list *ap,\
 {
 	if ('c' == f->mod_type ||\
 		'%' == f->mod_type)
-		return printf_print_type_char(ap, f);
+		return (printf_print_type_char(ap, f));
 	if ('s' == f->mod_type)
-		return printf_print_type_string(ap, f);
+		return (printf_print_type_string(ap, f));
 	if ('d' == f->mod_type ||\
 		'i' == f->mod_type ||\
 		'u' == f->mod_type)
-		return printf_print_type_int(ap, f);
+		return (printf_print_type_int(ap, f));
 	if ('x' == f->mod_type ||\
 		'X' == f->mod_type ||\
 		'p' == f->mod_type)
-		return printf_print_type_hex(ap, f);
+		return (printf_print_type_hex(ap, f));
 	return (0);
 }
 
@@ -549,4 +552,3 @@ int						ft_printf(const char *format_string, ...)
 	va_end(ap);
 	return (bytes_written);
 }
-
