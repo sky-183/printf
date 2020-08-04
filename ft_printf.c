@@ -6,7 +6,7 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/05 10:15:59 by vflander          #+#    #+#             */
-/*   Updated: 2020/08/04 13:39:20 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/04 13:51:26 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,12 +73,12 @@ int					printf_print_formatted_block(va_list *ap,\
 	bytes_written = 0;
 	printf_init_struct(f);
 	printf_parse_flags(format_string, f);
-	if (-1 == printf_parse_modifiers_width(ap, format_string, f))
+	if (-1 == printf_parse_mod_width(ap, format_string, f))
 		return (-1);
 	if ('.' == **format_string)
-		if (-1 == printf_parse_modifiers_precision(ap, format_string, f))
+		if (-1 == printf_parse_mod_precision(ap, format_string, f))
 			return (-1);
-	if (-1 == printf_parse_modifier_type(format_string, f))
+	if (-1 == printf_parse_mod_type(format_string, f))
 		return (-1);
 	bytes_written += printf_print_processed_struct(ap, f);
 	return (bytes_written);
