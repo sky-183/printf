@@ -6,7 +6,7 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/05 10:15:59 by vflander          #+#    #+#             */
-/*   Updated: 2020/08/03 19:37:18 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/04 09:47:05 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,20 +62,20 @@ void					print_struct(t_format_data *this_struct_ptr)
 */
 
 void			printf_parse_flags(const char **format_string,\
-				t_format_data *format_data)
+				t_format_data *f)
 {
 	while (**format_string)
 	{
 		if (**format_string == '-')
-			format_data->flag_minus = true;
+			f->flag_minus = true;
 		else if (**format_string == '+')
-			format_data->flag_plus = true;
+			f->flag_plus = true;
 		else if (**format_string == ' ')
-			format_data->flag_space = true;
+			f->flag_space = true;
 		else if (**format_string == '#')
-			format_data->flag_hash = true;
+			f->flag_hash = true;
 		else if (**format_string == '0')
-			format_data->flag_zero = true;
+			f->flag_zero = true;
 		else
 			break;
 		(*format_string)++;
@@ -89,31 +89,31 @@ void			printf_parse_flags(const char **format_string,\
 */
 
 int			printf_parse_modifiers_width(va_list *ap,\
-			const char **format_string, t_format_data *format_data)
+			const char **format_string, t_format_data *f)
 {
 	//Width
 	if ('*' == **format_string)
 	{
 		//Parse from 'ap' as int and eval negatives separately
-		format_data->mod_width_value = va_arg(*ap, int);
+		f->mod_width_value = va_arg(*ap, int);
 		*format_string += 1;
 		//deal with negatives
-		if (format_data->mod_width_value < 0)
+		if (f->mod_width_value < 0)
 		{
-			if (INT_MIN == format_data->mod_width_value)
+			if (INT_MIN == f->mod_width_value)
 				return (-1);
-			format_data->flag_minus = true;
-			format_data->mod_width_value *= -1;
+			f->flag_minus = true;
+			f->mod_width_value *= -1;
 		}
-		format_data->mod_width = true;
+		f->mod_width = true;
 	}
 	else
 	{
 		//Parse with atoi (from string to int)
-		format_data->mod_width_value = ft_atoi(*format_string);
+		f->mod_width_value = ft_atoi(*format_string);
 		while (ft_isdigit(**format_string))
 		{
-			format_data->mod_width = true;
+			f->mod_width = true;
 			*format_string += 1;
 		}
 	}
@@ -122,42 +122,42 @@ int			printf_parse_modifiers_width(va_list *ap,\
 }
 
 int			printf_parse_modifiers_precision(va_list *ap,\
-			const char **format_string, t_format_data *format_data)
+			const char **format_string, t_format_data *f)
 {
 	*format_string += 1;// skipping initial '.'
 	if ('*' == **format_string)
 	{
-		format_data->mod_precision_value = va_arg(*ap, int);
+		f->mod_precision_value = va_arg(*ap, int);
 		*format_string += 1;
 	}
 	//allowing only digits. should add '-' and '+'? negative is not allowed, tho
 	else if (ft_isdigit(**format_string))
 	{
-		format_data->mod_precision_value = ft_atoi(*format_string);
+		f->mod_precision_value = ft_atoi(*format_string);
 		while (ft_isdigit(**format_string))
 			*format_string += 1;
 	}
-	if (format_data->mod_precision_value >= 0)
-		format_data->mod_precision = true;//negative precision is omitted
+	if (f->mod_precision_value >= 0)
+		f->mod_precision = true;//negative precision is omitted
 	//When precision is present, '0' flag is omitted
 	//TODO: Do I need to specify types here as well?
-	if (format_data->mod_precision)
-		format_data->flag_zero = 0;
+	if (f->mod_precision)
+		f->flag_zero = 0;
 	return (0);
 }
 
 int			printf_parse_modifier_type(const char **format_string,\
-			t_format_data *format_data)
+			t_format_data *f)
 {
 	char	c;
 
 	c = **format_string;
-	format_data->mod_type = c;
+	f->mod_type = c;
 	*format_string += 1;//skipping format symbol
 	if (c == 'c' || c == 's' || c == 'p' || c == 'd' || c == 'i' || c == 'u' \
 		|| c == 'x' || c == 'X' || c == '%')
-		format_data->format_is_valid = true;
-	if (false == format_data->format_is_valid)
+		f->format_is_valid = true;
+	if (false == f->format_is_valid)
 		return (-1);
 	return (0);
 }
@@ -167,7 +167,7 @@ int			printf_parse_modifier_type(const char **format_string,\
 **	Returns number of bytes written.
 */
 
-int			printf_print_type_char(va_list *ap, t_format_data *format_data)
+int			printf_print_type_char(va_list *ap, t_format_data *f)
 {
 	int		bytes_written;
 	int		this_char;
@@ -175,22 +175,22 @@ int			printf_print_type_char(va_list *ap, t_format_data *format_data)
 
 	bytes_written = 0;
 	i = 1;//our acutal character already included
-	if ('%' == format_data->mod_type)
-		this_char = format_data->mod_type;
+	if ('%' == f->mod_type)
+		this_char = f->mod_type;
 	else
 		this_char = (unsigned char)va_arg(*ap, int);
-	if (true == format_data->flag_minus)
+	if (true == f->flag_minus)
 		bytes_written += write(1, &this_char, 1);
-	if (true == format_data->mod_width)
-		while (i < format_data->mod_width_value)
+	if (true == f->mod_width)
+		while (i < f->mod_width_value)
 		{
-			if (format_data->flag_zero)
+			if (f->flag_zero)
 				bytes_written += write(1, "0", 1);
 			else
 				bytes_written += write(1, " ", 1);
 			i += 1;
 		}
-	if (false == format_data->flag_minus)
+	if (false == f->flag_minus)
 		bytes_written += write(1, &this_char, 1);
 	return (bytes_written);
 }
@@ -200,7 +200,7 @@ int			printf_print_type_char(va_list *ap, t_format_data *format_data)
 **	Returns number of bytes written.
 */
 
-int			printf_print_type_string(va_list *ap, t_format_data *format_data)
+int			printf_print_type_string(va_list *ap, t_format_data *f)
 {
 	int		bytes_written;
 	int		len;
@@ -212,16 +212,16 @@ int			printf_print_type_string(va_list *ap, t_format_data *format_data)
 	if (NULL == str)
 		str = "(null)";
 	len = ft_strlen(str);
-	if (format_data->mod_precision && (format_data->mod_precision_value < len))
-		len = format_data->mod_precision_value;
+	if (f->mod_precision && (f->mod_precision_value < len))
+		len = f->mod_precision_value;
 	i = len;
-	if (true == format_data->flag_minus)
+	if (true == f->flag_minus)
 		while (len--)
 			bytes_written += write(1, str++, 1);
-	if (true == format_data->mod_width)
-		while (i++ < format_data->mod_width_value)
+	if (true == f->mod_width)
+		while (i++ < f->mod_width_value)
 			bytes_written += write(1, " ", 1);
-	if (false == format_data->flag_minus)
+	if (false == f->flag_minus)
 		while (len--)
 			bytes_written += write(1, str++, 1);
 	return (bytes_written);
@@ -233,35 +233,45 @@ int			printf_print_type_string(va_list *ap, t_format_data *format_data)
 **	or '0' flag.
 */
 
-int			printf_get_number_len(long int number, t_format_data *format_data)
+int				printf_get_number_len(long int number, t_format_data *f)
 {
-	int		len;
+	int			len;
+	long int	tmp;
 
 	len = 1;
-	while (number / 10)
+	//for nonprintable zero
+	if ((0 == number) && (true == f->mod_precision) && \
+		(0 == f->mod_precision_value))
+		len = 0;
+	tmp = number;
+	while (tmp / 10)
 		{
-			number /= 10;
+			tmp /= 10;
 			len += 1;
 		}
 	//counting number of zeros (precision) before counting sign/space
-	if (true == format_data->mod_precision && \
-		format_data->mod_precision_value > len)
+	if (true == f->mod_precision && \
+		f->mod_precision_value > len)
 	{
-		format_data->misc_num_of_zeros = format_data->mod_precision_value - len;
-		len += format_data->misc_num_of_zeros;
+		f->misc_num_of_zeros = f->mod_precision_value - len;
+		len += f->misc_num_of_zeros;
 	}
 	if (number < 0)
 		len += 1;
-	else if (format_data->mod_type != 'u')
-		if (format_data->flag_plus || format_data->flag_space)
+	else if (f->mod_type != 'u')
+		if (f->flag_plus || f->flag_space)
 			len += 1;
 	//counting number of zeros ('0' flag)
-	if (true == format_data->mod_width)
-		if (true == format_data->flag_zero && !(format_data->flag_minus))
+	if (true == f->mod_width)
+		if (true == f->flag_zero && !(f->flag_minus))
 		{
-			format_data->misc_num_of_zeros = format_data->mod_width_value - len;
-			len += format_data->misc_num_of_zeros;
+			f->misc_num_of_zeros = f->mod_width_value - len;
+			if (f->misc_num_of_zeros < 0)
+				f->misc_num_of_zeros = 0;
+			len += f->misc_num_of_zeros;
 		}
+	//FIXME: debug
+	//printf("((get_len:%d))", len);
 	return (len);
 }
 
@@ -291,7 +301,7 @@ int		printf_putnbr_long(long int n)
 */
 
 int			printf_print_type_int_number(long int number,\
-			t_format_data *format_data)
+			t_format_data *f)
 {
 	int		bytes_written;
 	//FIXME:
@@ -299,11 +309,11 @@ int			printf_print_type_int_number(long int number,\
 
 	bytes_written = 0;
 	//print ' ' or '+' if needed
-	if (number >= 0 && (format_data->mod_type != 'u'))
+	if (number >= 0 && (f->mod_type != 'u'))
 	{
-		if (format_data->flag_plus)
+		if (f->flag_plus)
 			bytes_written += write(1, "+", 1);
-		else if (format_data->flag_space)
+		else if (f->flag_space)
 			bytes_written += write(1, " ", 1);
 	}
 	//print '-'
@@ -313,16 +323,23 @@ int			printf_print_type_int_number(long int number,\
 		number = -number;
 	}
 	//print leading '0' for precision
-	while (format_data->misc_num_of_zeros > 0)
+	while (f->misc_num_of_zeros > 0)
 	{
 		bytes_written += write(1, "0", 1);
-		format_data->misc_num_of_zeros -= 1;
+		f->misc_num_of_zeros -= 1;
 	}
 	//printing actual number;
-	//FIXME: debug
-	debug = printf_putnbr_long(number);
-	//printf("((%d))", debug);
-	bytes_written += debug;
+	//if this is non-printable zero
+	if ((0 == number) && (true == f->mod_precision) && \
+		(0 == f->mod_precision_value))
+		bytes_written += 0;//print nothing for this combination
+	else//if this is printable anything else
+	{
+		//FIXME: debug
+		debug = printf_putnbr_long(number);
+		// printf("((putnbr:%d))", debug);
+		bytes_written += debug;
+	}
 	return (bytes_written);
 }
 
@@ -332,41 +349,41 @@ int			printf_print_type_int_number(long int number,\
 **	Returns number of bytes written.
 */
 
-int				printf_print_type_int(va_list *ap, t_format_data *format_data)
+int				printf_print_type_int(va_list *ap, t_format_data *f)
 {
 	int			bytes_written;
-	int			len;
 	long int	number;
+	int			num_of_spaces;
 
-	if ('u' == format_data->mod_type)
+	if ('u' == f->mod_type)
 		number = va_arg(*ap, unsigned int);
 	else
 		number = va_arg(*ap, int);
-	if ((0 == number) && (true == format_data->mod_precision) && \
-		(0 == format_data->mod_precision_value))
-		return (0);//print nothing for this combination
-	len = printf_get_number_len(number, format_data);
+	if (f->mod_width)
+		num_of_spaces = f->mod_width_value - printf_get_number_len(number, f);
+	if (num_of_spaces < 0)
+		num_of_spaces = 0;
 	//TODO: debug:
-	//printf("((%d))", len);
-	bytes_written = len;// 0 if doing it iside in the function
+	//printf("((spaces:%d))", num_of_spaces);
+	bytes_written = 0;// 0 if doing it iside in the function
 	/*
-	if (number < 0 && format_data->mod_precision &&\
-		(format_data->mod_precision_value > 1))
+	if (number < 0 && f->mod_precision &&\
+		(f->mod_precision_value > 1))
 		bytes_written += 1;//counting '-' sign
 	*/
 	//print number
-	if (true == format_data->flag_minus)
-		printf_print_type_int_number(number, format_data);
+	if (true == f->flag_minus)
+		bytes_written += printf_print_type_int_number(number, f);
 	//print fillers
-	if (true == format_data->mod_width)
-		while (len < format_data->mod_width_value)
+	if (true == f->mod_width)
+		while (num_of_spaces)
 		{
 			bytes_written += write(1, " ", 1);
-			len += 1;
+			num_of_spaces -= 1;
 		}
 	//print number
-	if (false == format_data->flag_minus)
-		printf_print_type_int_number(number, format_data);
+	if (false == f->flag_minus)
+		bytes_written += printf_print_type_int_number(number, f);
 	return (bytes_written);
 }
 
@@ -411,15 +428,15 @@ void			printf_putnbr_long_hex(size_t n, bool capital)
 */
 
 int				printf_print_type_hex_number(size_t number,\
-				t_format_data *format_data)
+				t_format_data *f)
 {
 	int			bytes_written;
 	char		mod_type;
 	bool		capital;
 
-	mod_type = format_data->mod_type;
+	mod_type = f->mod_type;
 	bytes_written = 0;
-	if (true == format_data->flag_hash && (0 != number) && ('p' != mod_type))
+	if (true == f->flag_hash && (0 != number) && ('p' != mod_type))
 	{
 		write(1, "0", 1);
 		write(1, &mod_type, 1);
@@ -440,39 +457,39 @@ int				printf_print_type_hex_number(size_t number,\
 **	Returns number of bytes written.
 */
 
-int				printf_print_type_hex(va_list *ap, t_format_data *format_data)
+int				printf_print_type_hex(va_list *ap, t_format_data *f)
 {
 	int			bytes_written;
 	size_t		number;
 	int			len;
 
-	if ('p' == format_data->mod_type)
+	if ('p' == f->mod_type)
 		number = va_arg(*ap, size_t);
 	else
 		number = va_arg(*ap, unsigned int);
 	len = printf_get_number_len_hex(number);
-	if (true == format_data->flag_hash && (number != 0) &&\
-		'p' != format_data->mod_type)
+	if (true == f->flag_hash && (number != 0) &&\
+		'p' != f->mod_type)
 		len += 2;//'0x' when '#' flag present for non-zero values
-	if ('p' == format_data->mod_type)
+	if ('p' == f->mod_type)
 		len += 2;//always '0x' for 'p' type
 	//TODO: debug:
 	//printf("((%d))", len);
 	bytes_written = len;
 	//print number
-	if (true == format_data->flag_minus)
-		bytes_written += printf_print_type_hex_number(number, format_data);
+	if (true == f->flag_minus)
+		bytes_written += printf_print_type_hex_number(number, f);
 
 	//print fillers
-	if (true == format_data->mod_width)
-		while (len < format_data->mod_width_value)
+	if (true == f->mod_width)
+		while (len < f->mod_width_value)
 		{
 			bytes_written += write(1, " ", 1);
 			len += 1;
 		}
 	//print number
-	if (false == format_data->flag_minus)
-		bytes_written += printf_print_type_hex_number(number, format_data);
+	if (false == f->flag_minus)
+		bytes_written += printf_print_type_hex_number(number, f);
 
 	return (bytes_written);
 }
@@ -485,21 +502,21 @@ int				printf_print_type_hex(va_list *ap, t_format_data *format_data)
 //TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:
 
 int			printf_print_processed_struct(va_list *ap,\
-			t_format_data *format_data)
+			t_format_data *f)
 {
-	if ('c' == format_data->mod_type ||\
-		'%' == format_data->mod_type)
-		return printf_print_type_char(ap, format_data);
-	if ('s' == format_data->mod_type)
-		return printf_print_type_string(ap, format_data);
-	if ('d' == format_data->mod_type ||\
-		'i' == format_data->mod_type ||\
-		'u' == format_data->mod_type)
-		return printf_print_type_int(ap, format_data);
-	if ('x' == format_data->mod_type ||\
-		'X' == format_data->mod_type ||\
-		'p' == format_data->mod_type)
-		return printf_print_type_hex(ap, format_data);
+	if ('c' == f->mod_type ||\
+		'%' == f->mod_type)
+		return printf_print_type_char(ap, f);
+	if ('s' == f->mod_type)
+		return printf_print_type_string(ap, f);
+	if ('d' == f->mod_type ||\
+		'i' == f->mod_type ||\
+		'u' == f->mod_type)
+		return printf_print_type_int(ap, f);
+	if ('x' == f->mod_type ||\
+		'X' == f->mod_type ||\
+		'p' == f->mod_type)
+		return printf_print_type_hex(ap, f);
 	//will never get here anyway
 	return (0);
 }
@@ -514,30 +531,30 @@ int			printf_print_processed_struct(va_list *ap,\
 
 
 int						printf_print_formatted_block(va_list *ap,\
-						const char **format_string, t_format_data *format_data)
+						const char **format_string, t_format_data *f)
 {
 	int					bytes_written;
 
 	bytes_written = 0;
-	printf_init_struct(format_data);
+	printf_init_struct(f);
 
 	//TODO:
 	// test original printf with negative width and precision
 	// (both as args and with *). And with some atoi-friendly symbols in str \t
 
 	//Parse
-	printf_parse_flags(format_string, format_data);
-	if (-1 == printf_parse_modifiers_width(ap, format_string, format_data))
+	printf_parse_flags(format_string, f);
+	if (-1 == printf_parse_modifiers_width(ap, format_string, f))
 		return (-1);//on MIN_INT as * width modifier
 	if ('.' == **format_string)
 		if (-1 == printf_parse_modifiers_precision(ap, format_string,\
-													format_data))
+													f))
 			return (-1);//on MIN_INT as * precision modifier
-	if (-1 == printf_parse_modifier_type(format_string, format_data))
+	if (-1 == printf_parse_modifier_type(format_string, f))
 		return (-1);//on unknown format type symbol
 
 	//Main part - print stuff
-	bytes_written += printf_print_processed_struct(ap, format_data);
+	bytes_written += printf_print_processed_struct(ap, f);
 
 	return (bytes_written);
 }
@@ -556,7 +573,7 @@ int						ft_printf(const char *format_string, ...)
 	int					total_len_written;
 	int					return_value;
 	va_list				ap;
-	t_format_data		format_data;
+	t_format_data		f;
 
 
 	if (NULL == format_string)
@@ -573,7 +590,7 @@ int						ft_printf(const char *format_string, ...)
 			//returns number of symbols writted or -1 on error
 			//use va_arg inside to grab next element
 			return_value = printf_print_formatted_block(&ap, &format_string,\
-												&format_data);
+												&f);
 			if (-1 == return_value)
 				return (-1);
 			total_len_written += return_value;
