@@ -6,7 +6,7 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/05 10:15:59 by vflander          #+#    #+#             */
-/*   Updated: 2020/08/04 10:01:23 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/04 11:08:58 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -243,6 +243,7 @@ int				printf_get_number_len(long int number, t_format_data *f)
 	if ((0 == number) && (true == f->mod_precision) && \
 		(0 == f->mod_precision_value))
 		len = 0;
+	//len of digits itself
 	tmp = number;
 	while (tmp / 10)
 		{
@@ -250,19 +251,18 @@ int				printf_get_number_len(long int number, t_format_data *f)
 			len += 1;
 		}
 	//counting number of zeros (precision) before counting sign/space
-	if (true == f->mod_precision && \
-		f->mod_precision_value > len)
+	if (true == f->mod_precision && f->mod_precision_value > len)
 	{
 		f->misc_num_of_zeros = f->mod_precision_value - len;
 		len += f->misc_num_of_zeros;
 	}
+	//counting '-', '+', ' '
 	if (number < 0)
 		len += 1;
 	else if (f->mod_type != 'u')
 		if (f->flag_plus || f->flag_space)
 			len += 1;
 	//counting number of zeros ('0' flag)
-	//FIXME: if (true == f->mod_width) will it work fine without this string?
 	if (true == f->flag_zero && !(f->flag_minus))
 	{
 		f->misc_num_of_zeros = f->mod_width_value - len;
@@ -389,37 +389,70 @@ int				printf_print_type_int(va_list *ap, t_format_data *f)
 }
 
 /*
-**	Returns length of unsigned int in its hexadecimal representation.
+**	Returns length of unsigned int in its hexadecimal representation, including
+**	additional zeros for precision or '0' flag and for '0x'.
+**	Basically, len of everything except spaces from 'width' mod.
 */
 
-int			printf_get_number_len_hex(long int number)
+int			printf_get_number_len_hex(size_t number, t_format_data *f)
 {
 	int		len;
 
 	len = 1;
+	//for nonprintable zero
+	if ((0 == number) && (true == f->mod_precision) && \
+		(0 == f->mod_precision_value))
+		len = 0;
+	//len of digits itself
 	while (number / 16)
 		{
 			number /= 16;
 			len += 1;
 		}
+	//TODO: should this be before or after counting zeros?
+	if (true == f->flag_hash && (number != 0) && 'p' != f->mod_type)
+		len += 2;//'0x' when '#' flag present for non-zero values
+	if ('p' == f->mod_type)
+		len += 2;//always '0x' for 'p' type
+	//counting number of zeros (precision)
+	if (true == f->mod_precision && f->mod_precision_value > len)
+	{
+		f->misc_num_of_zeros = f->mod_precision_value - len;
+		len += f->misc_num_of_zeros;
+	}
+	//counting number of zeros ('0' flag)
+	if (true == f->flag_zero && !(f->flag_minus))
+	{
+		f->misc_num_of_zeros = f->mod_width_value - len;
+		if (f->misc_num_of_zeros < 0)
+			f->misc_num_of_zeros = 0;
+		len += f->misc_num_of_zeros;
+	}
+	//FIXME: debug
+	//printf("((zeros:%d))", f->misc_num_of_zeros);
+
 	return (len);
 }
 
 /*
 **	Prints given unsigned int to stdout in hexadecimal form.
+**	Returns number of bytes written.
 */
 
-void			printf_putnbr_long_hex(size_t n, bool capital)
+int			printf_putnbr_hex(size_t n, bool capital)
 {
 	char		*digits;
 	char		c;
+	int			bytes_written;
 
 	digits = "0123456789abcdef0123456789ABCDEF";
 
+	bytes_written = 0;
 	if (n >= 16)
-		printf_putnbr_long_hex(n / 16, capital);
+		bytes_written += printf_putnbr_hex(n / 16, capital);
 	c = digits[(n % 16) + 16 * capital];
-	write(1, &c, 1);
+	bytes_written += write(1, &c, 1);
+	return (bytes_written);
 }
 
 /*
@@ -439,17 +472,31 @@ int				printf_print_type_hex_number(size_t number,\
 	bytes_written = 0;
 	if (true == f->flag_hash && (0 != number) && ('p' != mod_type))
 	{
-		write(1, "0", 1);
-		write(1, &mod_type, 1);
+		bytes_written += write(1, "0", 1);
+		bytes_written += write(1, &mod_type, 1);
 	}
 	if ('p' == mod_type)
-		write(1, "0x", 2);
+		bytes_written += write(1, "0x", 2);
 	if ('X' == mod_type)
 		capital = true;
 	else
 		capital = false;
-	printf_putnbr_long_hex(number, capital);
+	//print leading '0' for precision
+	while (f->misc_num_of_zeros > 0)
+	{
+		bytes_written += write(1, "0", 1);
+		f->misc_num_of_zeros -= 1;
+	}
+	//printing actual number;
+	//if this is non-printable zero
+	if ((0 == number) && (true == f->mod_precision) && \
+		(0 == f->mod_precision_value))
+		bytes_written += 0;//print nothing for this combination
+	else//if this is printable anything else
+		bytes_written += printf_putnbr_hex(number, capital);
 
+	//FIXME: debug
+	//printf("((bytes:%d))", bytes_written);
 	return (bytes_written);
 }
 
@@ -462,31 +509,30 @@ int				printf_print_type_hex(va_list *ap, t_format_data *f)
 {
 	int			bytes_written;
 	size_t		number;
-	int			len;
+	int			tmp;
+	int			num_of_spaces;
 
 	if ('p' == f->mod_type)
 		number = va_arg(*ap, size_t);
 	else
 		number = va_arg(*ap, unsigned int);
-	len = printf_get_number_len_hex(number);
-	if (true == f->flag_hash && (number != 0) &&\
-		'p' != f->mod_type)
-		len += 2;//'0x' when '#' flag present for non-zero values
-	if ('p' == f->mod_type)
-		len += 2;//always '0x' for 'p' type
+	num_of_spaces = 0;
+	if (((tmp = (f->mod_width_value - printf_get_number_len_hex(number, f))) \
+		>= 0) && f->mod_width)
+		num_of_spaces = tmp;
 	//TODO: debug:
-	//printf("((%d))", len);
-	bytes_written = len;
+	//printf("((spaces:%d))", num_of_spaces);
+	bytes_written = 0;
 	//print number
 	if (true == f->flag_minus)
 		bytes_written += printf_print_type_hex_number(number, f);
 
 	//print fillers
 	if (true == f->mod_width)
-		while (len < f->mod_width_value)
+		while (num_of_spaces)
 		{
 			bytes_written += write(1, " ", 1);
-			len += 1;
+			num_of_spaces -= 1;
 		}
 	//print number
 	if (false == f->flag_minus)
