@@ -6,7 +6,7 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/05 10:15:59 by vflander          #+#    #+#             */
-/*   Updated: 2020/08/04 09:47:05 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/04 09:52:02 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -353,16 +353,16 @@ int				printf_print_type_int(va_list *ap, t_format_data *f)
 {
 	int			bytes_written;
 	long int	number;
+	int			tmp;
 	int			num_of_spaces;
 
 	if ('u' == f->mod_type)
 		number = va_arg(*ap, unsigned int);
 	else
 		number = va_arg(*ap, int);
-	if (f->mod_width)
-		num_of_spaces = f->mod_width_value - printf_get_number_len(number, f);
-	if (num_of_spaces < 0)
-		num_of_spaces = 0;
+	num_of_spaces = 0;
+	if (f->mod_width && ((tmp = f->mod_width_value - printf_get_number_len(number, f)) >= 0))
+		num_of_spaces = tmp;
 	//TODO: debug:
 	//printf("((spaces:%d))", num_of_spaces);
 	bytes_written = 0;// 0 if doing it iside in the function
