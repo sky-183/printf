@@ -6,7 +6,7 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/18 13:15:24 by vflander          #+#    #+#             */
-/*   Updated: 2020/07/21 01:04:49 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/04 15:21:27 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,5 @@ int					ft_atoi_base(int n, char *string_of_digits);
 int					ft_atoi_hex(int n);
 char				*ft_itoa_base(unsigned long long number, size_t base);
 char				*ft_itoa_hex(unsigned long long number);
-
-
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/18 20:53:38 by vflander          #+#    #+#             */
-/*   Updated: 2020/07/18 22:22:01 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/04 15:26:27 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 /*
 **	Writes given number in spicified (as a string of digits) base to stdout
 **	Returns -1 in case of error (incorrect input)
-**	TODO: test this all over the place, includeing negative numbers
+**	!! Test this all over the place, includeing negative numbers !!
 */
 
 int			ft_atoi_base(int n, char *string_of_digits)
@@ -26,7 +26,6 @@ int			ft_atoi_base(int n, char *string_of_digits)
 
 	if (string_of_digits == NULL || ft_strlen(string_of_digits) < 1)
 		return (-1);
-	//TODO: working with min_int here if we need to work with negatives at all'
 	if (n < 0)
 	{
 		n = -n;

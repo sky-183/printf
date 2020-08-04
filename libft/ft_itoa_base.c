@@ -6,13 +6,11 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/21 00:29:21 by vflander          #+#    #+#             */
-/*   Updated: 2020/07/21 01:04:13 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/04 15:25:53 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <libft.h>
-
-//TODO: TEST!
 
 /*
 **	Count digints, needed to write (unsigned long long int) 'number'
@@ -21,7 +19,7 @@
 **	No error checking.
 */
 
-static size_t		count_numbers(unsigned long long number, size_t base)
+static size_t	count_numbers(unsigned long long number, size_t base)
 {
 	size_t		count;
 
@@ -37,6 +35,7 @@ static size_t		count_numbers(unsigned long long number, size_t base)
 /*
 **	Returns adress of a string representation of a given number in a given base
 **	(up to 16) or NULL if malloc allocation fails.
+**	!! Not properly tested yet.
 */
 
 char			*ft_itoa_base(unsigned long long number, size_t base)
@@ -46,10 +45,10 @@ char			*ft_itoa_base(unsigned long long number, size_t base)
 	size_t		i;
 
 	if (!number)
-		return(ft_strdup("0"));//return NULL or "0"
+		return (ft_strdup("0"));
 	digits_string = "0123456789ABCDEF";
 	i = count_numbers(number, base);
-	if (NULL != (result = malloc(i + 1)))//return NULL in the end on error
+	if (NULL != (result = malloc(i + 1)))
 	{
 		*(result + i) = '\0';
 		while (i)
@@ -69,5 +68,5 @@ char			*ft_itoa_base(unsigned long long number, size_t base)
 
 char			*ft_itoa_hex(unsigned long long number)
 {
-	return ft_itoa_base(number, 16);
+	return (ft_itoa_base(number, 16));
 }
