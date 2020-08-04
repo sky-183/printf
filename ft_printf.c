@@ -6,7 +6,7 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/05 10:15:59 by vflander          #+#    #+#             */
-/*   Updated: 2020/08/04 11:08:58 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/04 11:29:20 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,7 +184,7 @@ int			printf_print_type_char(va_list *ap, t_format_data *f)
 	if (true == f->mod_width)
 		while (i < f->mod_width_value)
 		{
-			if (f->flag_zero)
+			if (f->flag_zero && !(f->flag_minus))
 				bytes_written += write(1, "0", 1);
 			else
 				bytes_written += write(1, " ", 1);
