@@ -6,7 +6,7 @@
 /*   By: vflander <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/05 10:18:02 by vflander          #+#    #+#             */
-/*   Updated: 2020/08/04 09:24:35 by vflander         ###   ########.fr       */
+/*   Updated: 2020/08/04 13:37:33 by vflander         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,6 @@
 # include <stdlib.h>
 # include <stdbool.h>
 # include <limits.h>
-//for testing only
-# include "libft/libft.h"
-//# include <stdio.h>
 
 typedef struct	s_format
 {
@@ -38,7 +35,18 @@ typedef struct	s_format
 	int			misc_num_of_zeros;
 }				t_format_data;
 
-
 int				ft_printf(const char *format_string, ...);
+void			printf_parse_flags(const char **format_string,\
+				t_format_data *f);
+int				printf_parse_mod_width(va_list *ap,\
+				const char **format_string, t_format_data *f);
+int				printf_parse_mod_precision(va_list *ap,\
+				const char **format_string, t_format_data *f);
+int				printf_parse_mod_type(const char **format_string,\
+				t_format_data *f);
+int				printf_print_type_char(va_list *ap, t_format_data *f);
+int				printf_print_type_string(va_list *ap, t_format_data *f);
+int				printf_print_type_int(va_list *ap, t_format_data *f);
+int				printf_print_type_hex(va_list *ap, t_format_data *f);
 
 #endif
